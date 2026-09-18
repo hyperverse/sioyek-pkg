@@ -1,0 +1,12 @@
+# makepkg build artifacts
+src/
+pkg/
+# bare clone created by the `git+...` source
+sioyek/
+*.pkg.tar.zst
+*.log
+
+# Generated metadata. Regenerate with:
+#   makepkg --printsrcinfo > .SRCINFO
+# Keep .SRCINFO tracked for reproducible AUR-style metadata; uncomment to ignore.
+#.SRCINFO
