@@ -6,6 +6,7 @@ pkgbase = sioyek-dev
 	arch = x86_64
 	license = GPL-3.0-only
 	makedepends = git
+	makedepends = unzip
 	depends = qt6-base
 	depends = qt6-declarative
 	depends = qt6-svg

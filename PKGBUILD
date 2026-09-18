@@ -25,7 +25,7 @@ arch=(x86_64)
 license=(GPL-3.0-only)
 url="https://github.com/ahrm/sioyek"
 depends=(qt6-base qt6-declarative qt6-svg qt6-speech harfbuzz zlib libglvnd)
-makedepends=(git)
+makedepends=(git unzip)
 optdepends=(
   'qt6-wayland: native Wayland platform plugin'
   'speech-dispatcher: text-to-speech backend'
