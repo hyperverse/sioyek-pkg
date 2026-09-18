@@ -85,7 +85,10 @@ submodules, builds mupdf, builds sioyek, and produces
 
 The important details, in case anything needs adjusting later:
 
-- **mupdf** — `make -C mupdf USE_SYSTEM_HARFBUZZ=yes`
+- **mupdf** — `make -C mupdf USE_SYSTEM_HARFBUZZ=yes libs libmupdf-threads`
+  - Builds only the libraries sioyek links against (`libmupdf.a`,
+    `libmupdf-third.a`, `libmupdf-threads.a`), skipping the viewer apps whose
+    bundled freeglut would otherwise require GL/X11 dev headers.
   - Uses system `harfbuzz`.
   - Bundles everything else (freetype, jpeg, openjpeg, jbig2dec, gumbo, mujs,
     lcms2, curl, brotli, …) and links statically into the sioyek binary.

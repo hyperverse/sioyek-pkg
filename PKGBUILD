@@ -52,8 +52,12 @@ prepare() {
 build() {
   cd "sioyek"
 
-  # 1. Build the bundled mupdf (uses system harfbuzz; bundles everything else).
-  make -C mupdf USE_SYSTEM_HARFBUZZ=yes -j"$(nproc)"
+  # 1. Build only the mupdf libraries sioyek links against (libmupdf.a,
+  #    libmupdf-third.a, libmupdf-threads.a). We deliberately skip the
+  #    default `apps` target: it builds the mupdf-gl/mupdf-x11 viewers via the
+  #    bundled freeglut, which needs GL/X11 dev headers (glu, libx11, ...) that
+  #    are not needed by sioyek at all (sioyek does not link libmupdf-glut).
+  make -C mupdf USE_SYSTEM_HARFBUZZ=yes libs libmupdf-threads -j"$(nproc)"
 
   # 2. Build sioyek. linux_app_image keeps the local-mupdf link line;
   #    LINUX_STANDARD_PATHS makes the binary use /usr/share/sioyek + /etc/sioyek.
