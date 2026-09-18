@@ -26,8 +26,10 @@ jobs:
           # Speed up downloads
           sed -i 's/^#ParallelDownloads = 5/ParallelDownloads = 15/' /etc/pacman.conf
           # Refresh keyring first to avoid signature errors, then install tools.
+          # bash is installed explicitly so later steps can use `shell: bash`
+          # (the container's default `run:` shell is sh, which lacks `source`/arrays).
           pacman -Syu --noconfirm archlinux-keyring
-          pacman -S --noconfirm --needed base-devel git namcap
+          pacman -S --noconfirm --needed bash base-devel git namcap
 
       - name: Set up non-root builder
         # makepkg refuses to run as root; the container's default user is root.
@@ -46,6 +48,7 @@ jobs:
           fi
 
       - name: Install build/runtime dependencies declared in PKGBUILD
+        shell: bash
         run: |
           source PKGBUILD
           pacman -S --noconfirm --needed "${depends[@]}" "${makedepends[@]}"
