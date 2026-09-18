@@ -229,9 +229,9 @@ and re-run `repo-add`. For a single local package, `pacman -U` is simpler.
 The **packaging files** in this repository (PKGBUILD, README, .gitignore,
 LICENSE) are MIT-licensed — see [LICENSE](LICENSE).
 
-The **packaged software** (sioyek and its bundled mupdf) is GPL-3.0; the
-PKGBUILD's `license=(GPL3)` field describes the packaged software, not these
-packaging files.
+The **packaged software** (sioyek and its bundled mupdf) is GPL-3.0-only; the
+PKGBUILD's `license=(GPL-3.0-only)` field describes the packaged software,
+not these packaging files.
 
 ## Attribution
 

@@ -1,4 +1,5 @@
 # Maintainer: github.com/hyperverse
+# Contributor: github.com/hyperverse
 # Based on the AUR sioyek-git PKGBUILD by hrdl, Fabio 'Lolix' Loli, et al.
 #
 # Build notes:
@@ -21,7 +22,7 @@ pkgver=2.0.0.r1158.gd0b2c191
 pkgrel=1
 pkgdesc="PDF viewer for research papers and technical books (development branch, bundled mupdf)"
 arch=(x86_64)
-license=(GPL3)
+license=(GPL-3.0-only)
 url="https://github.com/ahrm/sioyek"
 depends=(qt6-base qt6-declarative qt6-svg qt6-speech harfbuzz zlib libglvnd)
 makedepends=(git)
