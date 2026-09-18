@@ -1,0 +1,66 @@
+name: build
+
+# When this workflow runs:
+#   - on every push to master (validates the latest committed state)
+#   - on manual trigger via the "Run workflow" button on GitHub
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    # Run on GitHub's Ubuntu runner, but inside an Arch Linux container so
+    # makepkg/namcap/pacman are available. This validates the PKGBUILD on a
+    # clean Arch environment, not just on the maintainer's machine.
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools and linter
+        run: |
+          # Speed up downloads
+          sed -i 's/^#ParallelDownloads = 5/ParallelDownloads = 15/' /etc/pacman.conf
+          # Refresh keyring first to avoid signature errors, then install tools.
+          pacman -Syu --noconfirm archlinux-keyring
+          pacman -S --noconfirm --needed base-devel git namcap
+
+      - name: Check .SRCINFO is in sync with PKGBUILD
+        run: |
+          makepkg --printsrcinfo > .SRCINFO.generated
+          if ! diff -u .SRCINFO .SRCINFO.generated; then
+            echo "::error::.SRCINFO is stale. Regenerate with: makepkg --printsrcinfo > .SRCINFO"
+            exit 1
+          fi
+
+      - name: Set up non-root builder
+        # makepkg refuses to run as root; the container's default user is root.
+        run: |
+          useradd -m -G wheel builder
+          printf 'builder ALL=(ALL) NOPASSWD: ALL\n' >> /etc/sudoers
+          chown -R builder .
+
+      - name: Install build/runtime dependencies declared in PKGBUILD
+        run: |
+          source PKGBUILD
+          pacman -S --noconfirm --needed "${depends[@]}" "${makedepends[@]}"
+
+      - name: Build package
+        run: |
+          sudo -u builder makepkg --noconfirm
+
+      - name: Lint PKGBUILD and built package with namcap
+        run: |
+          namcap PKGBUILD
+          namcap *.pkg.tar.zst
+
+      - name: Upload built package
+        uses: actions/upload-artifact@v4
+        with:
+          name: sioyek-dev-pkg
+          path: "*.pkg.tar.zst"
+          if-no-files-found: error

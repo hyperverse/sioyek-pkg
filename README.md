@@ -1,5 +1,7 @@
 # sioyek-dev — local Arch package
 
+![build](https://github.com/hyperverse/sioyek-pkg/actions/workflows/build.yml/badge.svg)
+
 Local [Arch Linux](https://archlinux.org) packaging for
 [**sioyek**](https://github.com/ahrm/sioyek) — a PDF/EPUB viewer focused on
 textbooks and research papers — built from the upstream **development** branch.
@@ -211,6 +213,7 @@ and re-run `repo-add`. For a single local package, `pacman -U` is simpler.
 - `README.md` — this file.
 - `LICENSE` — MIT license for the packaging files.
 - `.gitignore` — ignores `src/`, `pkg/`, the bare `sioyek/` clone, `*.pkg.tar.zst`, `*.log`.
+- `.github/workflows/build.yml` — GitHub Actions workflow: builds the package and runs `namcap` on push to `master` and on manual trigger. Status badge above.
 
 ## Notes
 
