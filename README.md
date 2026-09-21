@@ -1,4 +1,4 @@
-# sioyek-dev — local Arch package
+# sioyek-git — local Arch package
 
 ![build](https://github.com/hyperverse/sioyek-pkg/actions/workflows/build.yml/badge.svg)
 
@@ -21,7 +21,7 @@ textbooks and research papers — built from the upstream **development** branch
   - [How sioyek finds files at runtime](#how-sioyek-finds-files-at-runtime)
 - [Install](#install)
 - [Update](#update)
-- [Optional: `pacman -S sioyek-dev`](#optional-pacman--s-sioyek-dev)
+- [Optional: automatic upgrades with paru](#optional-automatic-upgrades-with-paru)
 - [Repo files](#repo-files)
 - [Notes](#notes)
 - [License](#license)
@@ -80,7 +80,7 @@ makepkg -s          # -s installs any missing makedepends (needs sudo for deps)
 
 This clones `https://github.com/ahrm/sioyek#branch=development`, initializes
 submodules, builds mupdf, builds sioyek, and produces
-`sioyek-dev-<ver>-x86_64.pkg.tar.zst`.
+`sioyek-git-<ver>-x86_64.pkg.tar.zst`.
 
 ### How it builds
 
@@ -146,7 +146,7 @@ Pick one:
 **Install the built package directly** (no rebuild):
 
 ```bash
-sudo pacman -U sioyek-dev-*.pkg.tar.zst
+sudo pacman -U sioyek-git-*.pkg.tar.zst
 ```
 
 **Build + install with makepkg:**
@@ -203,35 +203,43 @@ If a future upstream commit adds a dependency:
 That dependency tracking is the main advantage over a bare `./build_linux.sh`
 workflow.
 
-## Optional: `pacman -S sioyek-dev`
+## Optional: automatic upgrades with paru
 
-To install/upgrade via plain `pacman -S` instead of `pacman -U`, set up a tiny
-local repo:
+Installed this way the package is *foreign* — it shows up under `pacman -Qm`,
+belongs to no configured repository, and so `pacman -Syu` will never offer a
+newer version. Upgrading means remembering to rebuild by hand.
 
-```bash
-sudo mkdir -p /var/cache/pacman-local
-sudo cp sioyek-dev-*.pkg.tar.zst /var/cache/pacman-local/
-repo-add /var/cache/pacman-local/sioyek-dev.db.tar.gz \
-    /var/cache/pacman-local/sioyek-dev-*.pkg.tar.zst
-```
-
-Add to `/etc/pacman.conf` (anywhere):
+paru can track this repository directly. A *PKGBUILD repository* is a
+`[reponame]` section pointing at a git URL; paru clones it, scans it for
+PKGBUILDs, and then treats what it finds like any other package for
+installation and upgrades. Add to `~/.config/paru/paru.conf`:
 
 ```ini
-[local]
-SigLevel = Optional TrustAll
-Server = file:///var/cache/pacman-local
+[sioyek-pkg]
+Url = https://github.com/hyperverse/sioyek-pkg.git
 ```
 
-Then:
+Then `paru -Sya` refreshes PKGBUILD repositories and `paru -Syu` builds and
+installs anything out of date. Builds still happen locally, in paru's clone
+directory under `~/.cache/paru/clone`.
 
-```bash
-sudo pacman -Sy
-sudo pacman -S sioyek-dev
-```
+This involves the AUR in no way — it is our own git repo, and packages from a
+PKGBUILD repository take priority over AUR ones.
 
-After each rebuild, copy the new `.pkg.tar.zst` into `/var/cache/pacman-local/`
-and re-run `repo-add`. For a single local package, `pacman -U` is simpler.
+Note that `~/.config/paru/paru.conf` *replaces* `/etc/paru.conf` rather than
+merging with it, so start the file with `Include = /etc/paru.conf` to keep the
+system defaults.
+
+### Why the name ends in `-git`
+
+paru spots updates to VCS packages with `git ls-remote`, comparing the newest
+upstream commit against the one recorded at install time — quick, and the right
+check for a package that tracks a branch rather than a release. It decides
+which packages get that treatment from the `DevelSuffixes` setting, whose
+default is a list of version control system names (`-git -cvs -svn -bzr -darcs
+-hg -fossil`). Hence `sioyek-git`: naming it for the branch instead, as
+`sioyek-dev`, put it outside that list and silently fell back to comparing the
+static `pkgver=` string, which only changes *after* a build runs `pkgver()`.
 
 ## Repo files
 

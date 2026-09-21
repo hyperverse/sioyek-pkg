@@ -17,7 +17,7 @@
 #    `shallow = true`, so the artifex remote-tracking ref is never created
 #    locally and git aborts with "Unable to find refs/remotes/origin/artifex".
 
-pkgname=sioyek-dev
+pkgname=sioyek-git
 pkgver=2.0.0.r1159.g46b25941
 pkgrel=1
 pkgdesc="PDF viewer for research papers and technical books (development branch, bundled mupdf)"
@@ -33,7 +33,11 @@ optdepends=(
   'qt-kokoro-tts: neural text-to-speech voice (SIOYEK_TTS_ENGINE=kokoro)'
 )
 provides=(sioyek)
-conflicts=(sioyek)
+# sioyek-dev was this package's former name. replaces/conflicts let an existing
+# install swap over during a normal upgrade instead of needing a manual remove;
+# both entries can be dropped once no machine still has sioyek-dev installed.
+conflicts=(sioyek sioyek-dev)
+replaces=(sioyek-dev)
 source=("git+https://github.com/ahrm/sioyek.git#branch=development"
         "sioyek-tts-engine-env.patch")
 sha256sums=('SKIP'

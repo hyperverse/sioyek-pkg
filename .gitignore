@@ -1,3 +1,6 @@
+# Editor-local settings, machine-specific absolute paths
+.vscode/
+
 # makepkg build artifacts
 src/
 pkg/

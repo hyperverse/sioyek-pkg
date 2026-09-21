@@ -1,4 +1,4 @@
-pkgbase = sioyek-dev
+pkgbase = sioyek-git
 	pkgdesc = PDF viewer for research papers and technical books (development branch, bundled mupdf)
 	pkgver = 2.0.0.r1159.g46b25941
 	pkgrel = 1
@@ -20,6 +20,8 @@ pkgbase = sioyek-dev
 	optdepends = qt-kokoro-tts: neural text-to-speech voice (SIOYEK_TTS_ENGINE=kokoro)
 	provides = sioyek
 	conflicts = sioyek
+	conflicts = sioyek-dev
+	replaces = sioyek-dev
 	options = !strip
 	options = !debug
 	source = git+https://github.com/ahrm/sioyek.git#branch=development
@@ -27,4 +29,4 @@ pkgbase = sioyek-dev
 	sha256sums = SKIP
 	sha256sums = be8025160672f491a8045bd2a98fd7efeddbd67f6aeb24039cc75ed6e1d83dd9
 
-pkgname = sioyek-dev
+pkgname = sioyek-git
