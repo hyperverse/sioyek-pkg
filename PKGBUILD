@@ -18,7 +18,7 @@
 #    locally and git aborts with "Unable to find refs/remotes/origin/artifex".
 
 pkgname=sioyek-dev
-pkgver=2.0.0.r1158.gd0b2c191
+pkgver=2.0.0.r1159.g46b25941
 pkgrel=1
 pkgdesc="PDF viewer for research papers and technical books (development branch, bundled mupdf)"
 arch=(x86_64)
@@ -30,11 +30,14 @@ optdepends=(
   'qt6-wayland: native Wayland platform plugin'
   'speech-dispatcher: text-to-speech backend'
   'espeak-ng: voice for speech-dispatcher'
+  'qt-kokoro-tts: neural text-to-speech voice (SIOYEK_TTS_ENGINE=kokoro)'
 )
 provides=(sioyek)
 conflicts=(sioyek)
-source=("git+https://github.com/ahrm/sioyek.git#branch=development")
-sha256sums=('SKIP')
+source=("git+https://github.com/ahrm/sioyek.git#branch=development"
+        "sioyek-tts-engine-env.patch")
+sha256sums=('SKIP'
+            'be8025160672f491a8045bd2a98fd7efeddbd67f6aeb24039cc75ed6e1d83dd9')
 options=('!strip' '!debug')   # keep the 49 MB binary intact; avoid huge debug package
 
 pkgver() {
@@ -47,6 +50,13 @@ prepare() {
   cd "sioyek"
   # Fetch nested submodules at their pinned SHAs. Do NOT use --remote.
   git submodule update --init --recursive
+
+  # Qt resolves QTextToSpeech's default constructor to a hardcoded platform
+  # engine (speechd on Unix) and offers no way to override it, which makes
+  # third-party engine plugins unreachable. Honour SIOYEK_TTS_ENGINE so a
+  # neural backend such as qt-kokoro-tts can be selected at runtime:
+  #   SIOYEK_TTS_ENGINE=kokoro sioyek
+  git apply "$srcdir/sioyek-tts-engine-env.patch"
 }
 
 build() {

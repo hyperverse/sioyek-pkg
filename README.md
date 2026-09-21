@@ -66,6 +66,7 @@ replaces any AUR `sioyek` / `sioyek-git` install.
 - `qt6-wayland` — native Wayland platform plugin (recommended on Wayland/niri).
 - `speech-dispatcher` — text-to-speech backend.
 - `espeak-ng` — a voice for `speech-dispatcher`.
+- `qt-kokoro-tts` — a neural voice for reading books aloud (see below).
 
 > mupdf is built from the submodule and **statically linked**, so it is *not* a
 > runtime dependency. The package ships only the binary plus data files.
@@ -100,6 +101,13 @@ The important details, in case anything needs adjusting later:
   - `DEFINES+=LINUX_STANDARD_PATHS` makes the binary read defaults from
     `/etc/sioyek` and read-only data from `/usr/share/sioyek` (FHS), instead of
     looking next to the executable.
+
+- **Patch** — `sioyek-tts-engine-env.patch`, applied in `prepare()`.
+  - Qt resolves `QTextToSpeech`'s default constructor to a hardcoded platform
+    engine (`speechd` on Unix) and offers no environment variable or setting to
+    override it, so third-party engine plugins are unreachable.
+  - The patch makes sioyek honour `SIOYEK_TTS_ENGINE` when it is set, and
+    changes nothing when it is not.
 
 - **Submodules** — `git submodule update --init --recursive` (**no `--remote`**).
   - Most nested submodules declare `branch = artifex` with `shallow = true`.
@@ -160,6 +168,22 @@ sioyek                          # auto-selects platform plugin
 QT_QPA_PLATFORM=wayland sioyek  # force Wayland (needs qt6-wayland)
 ```
 
+## Text to speech
+
+Out of the box sioyek speaks through Qt's `speechd` engine, i.e. espeak-ng.
+That engine does not report word-by-word progress, so sioyek falls back to
+reading one line at a time instead of a whole page with follow-along scrolling.
+
+Installing [qt-kokoro-tts](https://github.com/hyperverse/qt-kokoro-tts) provides
+a neural voice (Kokoro-82M, ~2.6× real time on a Ryzen 7 3800X) that *does*
+report word progress, which re-enables page-at-a-time reading:
+
+```bash
+SIOYEK_TTS_ENGINE=kokoro sioyek
+```
+
+Leave `SIOYEK_TTS_ENGINE` unset to keep the stock espeak-ng behaviour.
+
 ## Update
 
 Because the source is `git+https://github.com/ahrm/sioyek#branch=development`,
@@ -212,6 +236,7 @@ and re-run `repo-add`. For a single local package, `pacman -U` is simpler.
 ## Repo files
 
 - `PKGBUILD` — the recipe.
+- `sioyek-tts-engine-env.patch` — lets `SIOYEK_TTS_ENGINE` pick the Qt TTS engine.
 - `.SRCINFO` — generated metadata (`makepkg --printsrcinfo > .SRCINFO`).
 - `README.md` — this file.
 - `LICENSE` — MIT license for the packaging files.
